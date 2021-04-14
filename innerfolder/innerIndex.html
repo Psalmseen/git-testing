@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML Canvas</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 10px;
+      }
+      body {
+        display: flex;
+        font-size: 1.6rem;
+      }
+      canvas {
+        border: 1.5rem groove red;
+        height: 100vh;
+        width: 80vw;
+        cursor: crosshair;
+      }
+      label {
+        display: block;
+        margin-top: 2rem;
+      }
+      .side-bar {
+        margin-top: 5rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        flex-direction: column;
+      }
+      #pen-tool,
+      #eraser-tool {
+        margin-bottom: 5rem;
+        border-radius: 2rem;
+        padding: 2rem;
+        box-shadow: inset 0 0 2rem rgba(0, 0, 0, 0.2);
+      }
+      #pen,
+      #eraser {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        border-radius: 2rem;
+      }
+
+      input[id*="-radio"] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="draw"></canvas>
+    <div class="side-bar">
+      <div id="pen-tool">
+        <input type="radio" name="tool" id="pen-radio" />
+        <label for="pen-radio" id="pen">Pen</label>
+        <label for="pen-point"
+          >Pen Size: <span id="pen-point__value"> </span
+        ></label>
+        <input
+          type="range"
+          value="10"
+          min="1"
+          max="100"
+          id="pen-point"
+          class="pen-width"
+        />
+        <label for="pen-color">Pen Color: </label>
+        <input type="color" value="#000" id="pen-color" class="pen-width" />
+      </div>
+
+      <div id="eraser-tool">
+        <input type="radio" name="tool" id="eraser-radio" />
+        <label for="eraser-radio" id="eraser">Erase</label>
+        <label for="eraser-point">
+          Eraser Size: <span id="eraser-point__value"> </span
+        ></label>
+        <input
+          type="range"
+          value="50"
+          min="1"
+          max="100"
+          id="eraser-point"
+          class="eraser-width"
+        />
+      </div>
+    </div>
+  </body>
+  <script>
+    // Pen Section
+    const penColor = document.querySelector("#pen-color").value;
+    const penPointValue = document.querySelector("#pen-point__value");
+    const penPoint = document.querySelector("#pen-point");
+    const pen = document.querySelector("#pen");
+    const penRadio = document.querySelector("#pen-radio");
+    penPointValue.innerHTML = `${penPoint.value}`;
+    penPoint.addEventListener(
+      "mousemove",
+      () => (penPointValue.innerHTML = `${penPoint.value}`)
+    );
+    window.addEventListener("click", penDraw);
+    function penDraw() {
+      pen.style.backgroundColor = penRadio.checked ? "#bbb" : "transparent";
+      eraser.style.backgroundColor = eraserRadio.checked
+        ? "#bbb"
+        : "transparent";
+      isPen = penRadio.checked;
+      isEraser = eraserRadio.checked;
+    }
+
+    // Eraser Section
+    const eraserPointValue = document.querySelector("#eraser-point__value");
+    const eraserPoint = document.querySelector("#eraser-point");
+    const eraser = document.querySelector("#eraser");
+    const eraserRadio = document.querySelector("#eraser-radio");
+
+    eraserPointValue.innerHTML = `${eraserPoint.value}`;
+    eraserPoint.addEventListener(
+      "mousemove",
+      () => (eraserPointValue.innerHTML = `${eraserPoint.value}`)
+    );
+
+    // Canvas Section
+    const canvas = document.querySelector("#draw");
+    canvas.width = window.innerWidth * 0.8;
+    canvas.height = window.innerHeight - 30;
+
+    // Context section
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = `${penColor}`;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    let isPen = false;
+    let isEraser = false;
+
+    function draw(e) {
+      const penColor = document.querySelector("#pen-color").value;
+      if (!isDrawing) {
+        return;
+      } else {
+        if (isPen) {
+          ctx.strokeStyle = `${penColor}`;
+          ctx.lineWidth = `${penPoint.value}`;
+          ctx.beginPath();
+          // Where to start
+          ctx.moveTo(lastX, lastY);
+          // Where to end
+          ctx.lineTo(e.offsetX, e.offsetY);
+
+          ctx.stroke();
+
+          lastX = e.offsetX;
+          lastY = e.offsetY;
+        } else if (isEraser) {
+          ctx.strokeStyle = `#fff`;
+          ctx.lineWidth = `${eraserPoint.value}`;
+          ctx.beginPath();
+          // Where to start
+          ctx.moveTo(lastX, lastY);
+          // Where to end
+          ctx.lineTo(e.offsetX, e.offsetY);
+
+          ctx.stroke();
+        } else return;
+      }
+
+      ctx.beginPath();
+      // Where to start
+      ctx.moveTo(lastX, lastY);
+      // Where to end
+      ctx.lineTo(e.offsetX, e.offsetY);
+
+      ctx.stroke();
+
+      lastX = e.offsetX;
+      lastY = e.offsetY;
+    }
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      lastX = e.offsetX;
+      lastY = e.offsetY;
+    });
+    canvas.addEventListener("mouseup", () => (isDrawing = false));
+    canvas.addEventListener("mouseout", () => (isDrawing = false));
+  </script>
+</html>
+=
