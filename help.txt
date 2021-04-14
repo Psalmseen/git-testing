@@ -1,1 +1,3 @@
 This file is created to provide help for anyone trying to navigate this page on github
+This page is now available online at the following web address
+
